@@ -1,7 +1,7 @@
-import 'package:pretty_json/pretty_json.dart';
+import 'dart:convert';
 
-extension PrettyString on String {
-  String get pretty {
-    return prettyJson(this, indent: 2);
-  }
+String prettyJson(dynamic json) {
+  var spaces = ' ' * 2;
+  var encoder = JsonEncoder.withIndent(spaces);
+  return encoder.convert(json);
 }

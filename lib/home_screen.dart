@@ -1,7 +1,25 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class MyApp extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
+import 'location_tracker.dart';
+import 'main.dart';
+import 'utils.dart';
+
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    initTracking();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +53,43 @@ class HeadlessEventsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("this is headless events list"),
+    return FutureBuilder<List<String>>(
+      future: getHeadLessEventsList(),
+      initialData: const [],
+      builder: (context, snapshot) {
+        final events = snapshot.data;
+        if (events == null || events.isEmpty) {
+          return const Center(child: Text("No locations recorded "));
+        }
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            final String event = events[index];
+            final List<String> titleAndBody = event.split("//split");
+            final title = titleAndBody[0];
+            final body = titleAndBody[1];
+            return ExpansionTile(
+              title: Row(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontSize: 16.0, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              children: <Widget>[
+                ListTile(
+                  title: Text(
+                    prettyJson(json.decode(body)),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                )
+              ],
+            );
+          },
+          reverse: true,
+        );
+      },
     );
   }
 }
@@ -46,8 +99,42 @@ class LocationsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Collected locations list"),
+    return FutureBuilder<List<bg.Location>>(
+      future: getRecordedLocations(),
+      initialData: const [],
+      builder: (context, snapshot) {
+        final locations = snapshot.data;
+        if (locations == null || locations.isEmpty) {
+          return const Center(child: Text("No locations recorded "));
+        }
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            final bg.Location location = locations[index];
+            return ExpansionTile(
+              title: Row(
+                children: [
+                  Text(
+                    location.timestamp.toString() +
+                        " : " +
+                        location.activity.type,
+                    style: const TextStyle(
+                        fontSize: 16.0, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              children: <Widget>[
+                ListTile(
+                  title: Text(
+                    location.map.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                )
+              ],
+            );
+          },
+          reverse: true,
+        );
+      },
     );
   }
 }

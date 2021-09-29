@@ -3,19 +3,18 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home_screen.dart';
-import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
 }
 
 Future<void> headlessTask(HeadlessEvent headlessEvent) async {
-  final nameOfEvent = headlessEvent.name;
-  final payload = headlessEvent.name;
-  final Map<String, dynamic> newEntry = {nameOfEvent: payload};
-  final encryptedString = json.encode(newEntry);
+  final timeStamp = DateTime.now().toIso8601String();
+  final nameOfEvent = headlessEvent.name + " : " + timeStamp;
+  final payload = headlessEvent.event.toString();
+  final String newEntry = "$nameOfEvent//split$payload";
   final entries = await getHeadLessEventsList();
-  entries.add(encryptedString);
+  entries.add(newEntry);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setStringList(prefsKey, entries);
 }
