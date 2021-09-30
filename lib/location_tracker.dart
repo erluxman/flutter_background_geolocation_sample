@@ -15,7 +15,7 @@ Future<void> initTracking() async {
 
 
 Future<List<Location>> getRecordedLocations() async {
-  var locations = await BackgroundGeolocation.locations ?? [];
+  var locations = await BackgroundGeolocation.locations;
   return locations.map((e) => Location(e)).toList();
 }
 
