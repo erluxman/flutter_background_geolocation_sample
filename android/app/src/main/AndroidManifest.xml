@@ -32,7 +32,7 @@
             android:value="2" />
         <meta-data
             android:name="com.transistorsoft.locationmanager.license"
-            android:value="8fc2e3f8ef5eeff8d1be62c165bb41d841aa7c6a43e5d9f6907c833727f697d3" 
+            android:value="1436306fb7597105b1a39639fb1967165f1ff6e0454937a99c1fb96fa4f35ddc" 
         />
         <service android:name="com.transistorsoft.locationmanager.service.TrackingService" android:foregroundServiceType="location" />
         <service android:name="com.transistorsoft.locationmanager.service.LocationRequestService" android:foregroundServiceType="location" />

@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -62,6 +62,7 @@ class HeadlessEventsWidget extends StatelessWidget {
           return const Center(child: Text("No locations recorded "));
         }
         return ListView.builder(
+          itemCount: events.length,
           itemBuilder: (context, index) {
             final String event = events[index];
             final List<String> titleAndBody = event.split("//split");
@@ -80,14 +81,13 @@ class HeadlessEventsWidget extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    prettyJson(json.decode(body)),
+                    body,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 )
               ],
             );
           },
-          reverse: true,
         );
       },
     );
@@ -108,6 +108,7 @@ class LocationsWidget extends StatelessWidget {
           return const Center(child: Text("No locations recorded "));
         }
         return ListView.builder(
+          itemCount: locations.length,
           itemBuilder: (context, index) {
             final bg.Location location = locations[index];
             return ExpansionTile(
@@ -132,7 +133,7 @@ class LocationsWidget extends StatelessWidget {
               ],
             );
           },
-          reverse: true,
+          reverse: false,
         );
       },
     );

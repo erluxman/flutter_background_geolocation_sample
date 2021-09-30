@@ -6,6 +6,7 @@ import 'home_screen.dart';
 
 void main() {
   runApp(const MyApp());
+  BackgroundGeolocation.registerHeadlessTask(headlessTask);
 }
 
 Future<void> headlessTask(HeadlessEvent headlessEvent) async {
