@@ -23,7 +23,7 @@ class GreenLogs {
   static GreenLogs _instance;
   final GreenPrefs _greenPrefs;
 
-  static Future<void> logError(String title, String description) async {
+  static Future<void> logError(String title, String description,String stackTrace) async {
     (await instance()).logGeneric(
       title: title,
       description: description,
@@ -44,7 +44,7 @@ class GreenLogs {
   static Future<List<LogModel>> getLogs() async {
     GreenPrefs prefs = (await instance())._greenPrefs;
     final logs = prefs.getLogs();
-    return logs;
+    return logs.reversed.toList();
   }
 
   Future<void> logGeneric({

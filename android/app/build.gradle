@@ -45,7 +45,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.greenplay.test"
+        applicationId "com.greenplayapp"
         minSdkVersion 20
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -78,4 +78,9 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation "com.google.android.gms:play-services-location:17.0.0"
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+
 }
