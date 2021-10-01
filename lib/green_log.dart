@@ -226,7 +226,7 @@ class LogModel {
       'emoji': emoji,
       'textColor': textColor.value,
       'stackTrace': stackTrace.toString(),
-      'date': date.millisecondsSinceEpoch,
+      'date': date.toIso8601String(),
     };
   }
 
@@ -236,7 +236,7 @@ class LogModel {
       description: map['description'],
       emoji: map['emoji'],
       textColor: Color(map['textColor']),
-      date: DateTime.fromMillisecondsSinceEpoch(map['date']),
+      date: DateTime.parse(map['date']),
     );
   }
 }
