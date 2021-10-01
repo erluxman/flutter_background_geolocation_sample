@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:geolocation_sample/green_log.dart';
 import 'location_tracker.dart';
 import 'main.dart';
 
@@ -23,13 +23,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
+              isScrollable: true,
               tabs: [
                 Tab(icon: Text("Locations")),
                 Tab(icon: Text("Headless Events")),
+                Tab(icon: Text("Logs")),
               ],
             ),
             title: const Text('Tabs Demo'),
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               LocationsWidget(),
               HeadlessEventsWidget(),
+              LogsWidget(),
             ],
           ),
         ),
@@ -125,6 +128,53 @@ class LocationsWidget extends StatelessWidget {
                 ListTile(
                   title: Text(
                     location.map.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                )
+              ],
+            );
+          },
+          reverse: false,
+        );
+      },
+    );
+  }
+}
+
+class LogsWidget extends StatelessWidget {
+  const LogsWidget({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<LogModel>>(
+      future: GreenLogs.getLogs(),
+      initialData: const [],
+      builder: (context, snapshot) {
+        final logs = snapshot.data;
+        if (logs == null || logs.isEmpty) {
+          return const Center(child: Text("No locations recorded "));
+        }
+        return ListView.builder(
+          itemCount: logs.length,
+          itemBuilder: (context, index) {
+            final LogModel log = logs[index];
+            return ExpansionTile(
+              title: Row(
+                children: [
+                  Text(
+                    log.emoji + " " + log.logKey + " " + log.title,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: log.textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              children: <Widget>[
+                ListTile(
+                  title: Text(
+                    log.toMap().toString(),
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 )

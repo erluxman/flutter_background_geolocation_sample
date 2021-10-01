@@ -36,9 +36,15 @@ class GreenLogs {
     (await instance()).logGeneric(
       title: title,
       description: description,
-      emoji: "ℹ️",
+      emoji: "ℹ",
       textColor: Colors.lightBlue,
     );
+  }
+
+  static Future<List<LogModel>> getLogs() async {
+    GreenPrefs prefs = (await instance())._greenPrefs;
+    final logs = prefs.getLogs();
+    return logs;
   }
 
   Future<void> logGeneric({
@@ -120,13 +126,13 @@ class GreenPrefs {
 
   Future<void> putLog(LogModel log) async {
     final String encodedLogs = jsonEncode(log.toMap());
-    await _logHive.put(log.logKey, encodedLogs);
+    await _logHive.add( encodedLogs);
   }
 
   List<LogModel> getLogs() {
-    final logs = _logHive?.values ?? [];
+    final logs = (_logHive?.values ?? []).toList();
     try {
-      return (logs as List).map((log) {
+      return (logs).map((log) {
         return LogModel.fromMap(json.decode(log));
       }).toList();
     } catch (e) {
@@ -190,7 +196,7 @@ class LogModel {
       {String title,
       String description,
       String emoji,
-      Color color,
+      Color textColor,
       DateTime date,
       String stackTrace}) {
     return LogModel(
@@ -198,7 +204,7 @@ class LogModel {
       description: description ?? this.description,
       emoji: emoji ?? this.emoji,
       stackTrace: stackTrace ?? this.stackTrace,
-      textColor: color ?? this.textColor,
+      textColor: textColor ?? this.textColor,
       date: date ?? this.date,
     );
   }

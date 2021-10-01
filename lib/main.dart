@@ -8,8 +8,7 @@ import 'home_screen.dart';
 void main() async {
   runApp(const MyApp());
   BackgroundGeolocation.registerHeadlessTask(headlessTask);
-  GreenPrefs greenPrefs = await GreenPrefs.getInstance();
-  await greenPrefs.putHeadlessEvent("Dummy Event //split This is just an app start");
+  await GreenLogs.logInfo("App started", "this is just a simple log");
 }
 
 Future<void> headlessTask(HeadlessEvent headlessEvent) async {
