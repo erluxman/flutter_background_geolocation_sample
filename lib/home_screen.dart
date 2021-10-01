@@ -6,7 +6,7 @@ import 'location_tracker.dart';
 import 'main.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -47,12 +47,12 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HeadlessEventsWidget extends StatelessWidget {
-  const HeadlessEventsWidget({Key? key}) : super(key: key);
+  const HeadlessEventsWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-      future: getHeadLessEventsList(),
+      future: getHeadLessEventsListFromHive(),
       initialData: const [],
       builder: (context, snapshot) {
         final events = snapshot.data;
@@ -93,7 +93,7 @@ class HeadlessEventsWidget extends StatelessWidget {
 }
 
 class LocationsWidget extends StatelessWidget {
-  const LocationsWidget({Key? key}) : super(key: key);
+  const LocationsWidget({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
