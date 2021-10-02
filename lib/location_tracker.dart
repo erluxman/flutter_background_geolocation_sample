@@ -1,18 +1,27 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
+import 'package:geolocation_sample/green_log.dart';
+import 'package:rxdart/subjects.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+
+import 'location_uploader.dart';
 
 Future<void> initTracking() async {
   //Let UI load.
   await Future.delayed(const Duration(seconds: 1));
   BackgroundGeolocation.changePace(true);
+  initSensors();
+  BackgroundGeolocation.onLocation((location) async {
+    await saveRawSession(location);
+  });
   BackgroundGeolocation.ready(trackerConfig).then((State state) async {
     if (!state.enabled) {
       await BackgroundGeolocation.start();
     }
   });
 }
-
 
 Future<List<Location>> getRecordedLocations() async {
   var locations = await BackgroundGeolocation.locations;
@@ -83,3 +92,69 @@ PermissionRationale get permissionRationale => PermissionRationale(
       positiveAction: "Sure bro, let's do it",
       negativeAction: "No bro, sorry",
     );
+
+void initSensors() {
+  accelerometerEvents.listen((AccelerometerEvent event) {
+    acc.add(event);
+  });
+
+  userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+    userAcc.add(event);
+  });
+
+  gyroscopeEvents.listen((GyroscopeEvent event) {
+    gyro.add(event);
+  });
+  magnetometerEvents.listen((MagnetometerEvent event) {
+    magnetoMeter.add(event);
+  });
+}
+
+BehaviorSubject<AccelerometerEvent> acc = BehaviorSubject.seeded(null);
+BehaviorSubject<UserAccelerometerEvent> userAcc = BehaviorSubject.seeded(null);
+BehaviorSubject<GyroscopeEvent> gyro = BehaviorSubject.seeded(null);
+BehaviorSubject<MagnetometerEvent> magnetoMeter = BehaviorSubject.seeded(null);
+
+extension AccelerometerEventExt on AccelerometerEvent {
+  Map<String, double> get asMap {
+    if (this == null) return {};
+    return {"x": x, "y": y, "z": z};
+  }
+}
+
+extension UserAccelerometerEventExt on UserAccelerometerEvent {
+  Map<String, double> get asMap {
+    if (this == null) return {};
+    return {"x": x, "y": y, "z": z};
+  }
+}
+
+extension GyroEventExt on GyroscopeEvent {
+  Map<String, double> get asMap {
+    if (this == null) return {};
+    return {"x": x, "y": y, "z": z};
+  }
+}
+
+extension MagnetometerEventExt on MagnetometerEvent {
+  Map<String, double> get asMap {
+    if (this == null) return {};
+    return {"x": x, "y": y, "z": z};
+  }
+}
+
+extension InternalToMap on LinkedHashMap {
+  Map<String, dynamic> get toMap =>
+      Map.fromEntries(entries.map((e) => MapEntry(e.key.toString(), e.value)));
+}
+
+Future<void> saveRawSession(Location location) async {
+  final raw = getRawSessionFromLocation(
+    location,
+    acc: acc.value.asMap,
+    magnetometer: magnetoMeter.value.asMap,
+  );
+
+  GreenPrefs prefs = await GreenPrefs.getInstance();
+  prefs.putHeadlessEvent("Rawsession onLocation//split${raw.toMap().toString()}");
+}
