@@ -7,15 +7,18 @@ import 'package:rxdart/subjects.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'location_uploader.dart';
+import 'sensor_plugin.dart';
 
 Future<void> initTracking() async {
   //Let UI load.
   await Future.delayed(const Duration(seconds: 1));
   BackgroundGeolocation.changePace(true);
-  initSensors();
-  BackgroundGeolocation.onLocation((location) async {
-    await saveRawSession(location);
-  });
+  await SensorPlugin.startSensorService();
+
+  //initSensors();
+  // BackgroundGeolocation.onLocation((location) async {
+  //   await saveRawSession(location);
+  // });
   BackgroundGeolocation.ready(trackerConfig).then((State state) async {
     if (!state.enabled) {
       await BackgroundGeolocation.start();
@@ -25,7 +28,18 @@ Future<void> initTracking() async {
 
 Future<List<Location>> getRecordedLocations() async {
   var locations = await BackgroundGeolocation.locations;
-  return locations.map((e) => Location(e)).toList().reversed.toList();
+  final abc = locations
+      .map((e) {
+        final location = Location(e);
+        location.timestamp =
+            localTimeFromUTCTimeStamp(location.timestamp).toIso8601String();
+        location.map["timestamp"] = location.timestamp;
+        return location;
+      })
+      .toList()
+      .reversed
+      .toList();
+  return abc;
 }
 
 Config get androidConfig => Config(
@@ -156,5 +170,6 @@ Future<void> saveRawSession(Location location) async {
   );
 
   GreenPrefs prefs = await GreenPrefs.getInstance();
-  prefs.putHeadlessEvent("Rawsession onLocation//split${raw.toMap().toString()}");
+  prefs.putHeadlessEvent(
+      "Rawsession onLocation//split${raw.toMap().toString()}");
 }

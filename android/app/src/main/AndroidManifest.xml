@@ -73,7 +73,6 @@
             android:name="com.greenplayapp.DetectedActivityReceiver"
             android:enabled="true"
             android:exported="true"
-            android:label="ActivityChangedIntent"
-            android:permission="" />
+            android:label="ActivityChangedIntent" />
     </application>
 </manifest>

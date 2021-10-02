@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart';
 import 'package:geolocation_sample/raw_session.dart';
 
+import 'green_log.dart';
 
 class SensorPlugin<T extends dynamic> {
   static const platform = MethodChannel('com.greenplay/sensors');
@@ -48,7 +49,9 @@ class SensorPlugin<T extends dynamic> {
     }
     try {
       await platform.invokeMethod('startSensorService');
-    } catch (e) {
+    } catch (e, trace) {
+      await GreenLogs.logError(
+          "Failed to start sensor", e.toString(), trace.toString());
       Logger.error("Sensorslog Failed To Start Sensor Service ${e.toString()}");
     }
   }
@@ -173,30 +176,6 @@ Map<String, num> parseSensorModel(dynamic jsonString) {
     return MapEntry(keyString, num.parse(valueNum.toString()));
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 extension DateTimeExtension on DateTime {
   String formattedDate() {

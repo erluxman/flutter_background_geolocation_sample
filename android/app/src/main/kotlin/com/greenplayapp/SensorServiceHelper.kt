@@ -16,6 +16,11 @@ const val SETTING_AUTO_START_TRACKING_LAST_ENABLED = "auto_start_tracking_last_e
 
 
 fun startSensorTracking(context: Context) {
+    registerActivityTransitionBroadcastListener(context)
+    fireSensorService(context)
+}
+fun fireSensorService(context: Context){
+
     SensorService.shouldRestartService = true
     val running = isMyServiceRunning(SensorService::class.java, context)
     if (running) return
@@ -26,7 +31,6 @@ fun startSensorTracking(context: Context) {
         serviceAdmin.launchService(context)
     }
     saveAutoStartTracking(context, true)
-
 }
 
 fun stopSensorTracking(context: Context) {
@@ -52,7 +56,7 @@ fun addSensorPoint(context: Context, log: SensorLog) {
     editor.putString(log.uid, sensorString)
     editor.commit()
     val shallStopService = shallExpireSensorService(context)
-    if(shallStopService){
+    if (shallStopService) {
         stopSensorTracking(context)
     }
 

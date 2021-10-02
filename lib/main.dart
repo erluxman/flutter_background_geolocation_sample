@@ -8,7 +8,6 @@ import 'home_screen.dart';
 void main() async {
   runApp(const MyApp());
   BackgroundGeolocation.registerHeadlessTask(headlessTask);
-  await SensorPlugin.startSensorService();
   await GreenLogs.logInfo("App started", "this is just a simple log");
 }
 
@@ -20,7 +19,6 @@ Future<void> headlessTask(HeadlessEvent headlessEvent) async {
   GreenPrefs greenPrefs = await GreenPrefs.getInstance();
   await greenPrefs.putHeadlessEvent(newEntry);
   await GreenLogs.logInfo("Before starting sensor", "Before starting sensor");
-
   await SensorPlugin.startSensorService();
   await GreenLogs.logInfo("After starting sensor", "After starting sensor");
 }
