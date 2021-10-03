@@ -17,9 +17,11 @@ Future<void> initTracking() async {
     BackgroundGeolocation.changePace(true);
   } catch (_) {}
   BackgroundGeolocation.onLocation((location) async {
+    final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
-     prefs.setDouble(
-      "lastHeartbeat", DateTime.now().millisecondsSinceEpoch.toDouble());
+    prefs.setDouble("lastHeartbeat", now.millisecondsSinceEpoch.toDouble());
+    GreenLogs.logInfo("update lastHeartbeat ",
+        "Updated lastHeartBeat from onLocation at ${now.toIso8601String()}");
   });
   BackgroundGeolocation.ready(trackerConfig).then((State state) async {
     if (!state.enabled) {
