@@ -5,6 +5,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:geolocation_sample/green_log.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'location_uploader.dart';
 import 'sensor_plugin.dart';
@@ -12,13 +13,14 @@ import 'sensor_plugin.dart';
 Future<void> initTracking() async {
   //Let UI load.
   await Future.delayed(const Duration(seconds: 1));
-  BackgroundGeolocation.changePace(true);
-  await SensorPlugin.startSensorService();
-
-  //initSensors();
-  // BackgroundGeolocation.onLocation((location) async {
-  //   await saveRawSession(location);
-  // });
+  try {
+    BackgroundGeolocation.changePace(true);
+  } catch (_) {}
+  BackgroundGeolocation.onLocation((location) async {
+    final prefs = await SharedPreferences.getInstance();
+     prefs.setDouble(
+      "lastHeartbeat", DateTime.now().millisecondsSinceEpoch.toDouble());
+  });
   BackgroundGeolocation.ready(trackerConfig).then((State state) async {
     if (!state.enabled) {
       await BackgroundGeolocation.start();

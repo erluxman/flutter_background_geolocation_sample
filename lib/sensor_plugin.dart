@@ -56,6 +56,19 @@ class SensorPlugin<T extends dynamic> {
     }
   }
 
+  static Future<void> logLastLocationUpdate() async {
+    if (Platform.isIOS) {
+      return;
+    }
+    try {
+      await platform.invokeMethod('logLastLocationUpdate');
+    } catch (e, trace) {
+      await GreenLogs.logError(
+          "Failed to logLastLocationUpdate ", e.toString(), trace.toString());
+      Logger.error("Failed to logLastLocationUpdate  ${e.toString()}");
+    }
+  }
+
   static Future<void> stopSensorService() async {
     if (Platform.isIOS) {
       return;
@@ -297,3 +310,5 @@ extension NumExt on num {
         : this > smaller && this < bigger;
   }
 }
+
+

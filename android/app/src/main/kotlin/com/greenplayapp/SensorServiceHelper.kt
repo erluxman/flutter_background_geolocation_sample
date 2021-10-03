@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.google.gson.Gson
+import com.greenplayapp.prefsutil.MethodCallHandlerImpl
 import java.text.SimpleDateFormat
+import kotlin.math.*
 import java.util.*
 
 
@@ -16,11 +18,6 @@ const val SETTING_AUTO_START_TRACKING_LAST_ENABLED = "auto_start_tracking_last_e
 
 
 fun startSensorTracking(context: Context) {
-    registerActivityTransitionBroadcastListener(context)
-    fireSensorService(context)
-}
-fun fireSensorService(context: Context){
-
     SensorService.shouldRestartService = true
     val running = isMyServiceRunning(SensorService::class.java, context)
     if (running) return
@@ -35,15 +32,15 @@ fun fireSensorService(context: Context){
 
 fun stopSensorTracking(context: Context) {
     SensorService.shouldRestartService = false
-    val running = isMyServiceRunning(SensorService::class.java, context)
-    val stopIntent: Intent = Intent(
+    val stopIntent = Intent(
             context,
             SensorService::class.java
     )
     stopIntent.action = ACTION.STOPFOREGROUND_ACTION
     context.stopService(stopIntent)
-    saveAutoStartTracking(context, false)
+    RestartBroadcastReceiver.scheduleJob(context,delaySeconds = 60)
 
+    //saveAutoStartTracking(context, false)
 }
 
 fun addSensorPoint(context: Context, log: SensorLog) {
@@ -107,16 +104,25 @@ fun getAutoStartTrackingLastEnabled(context: Context): Long {
     val prefs = context.getSharedPreferences(
             GREEN_PLAY_SENSOR_PREFS, Context.MODE_PRIVATE
     )
-    return prefs.getLong(SETTING_AUTO_START_TRACKING_LAST_ENABLED, 0)
+    val savedInt = getLastHeartbeat(context).toLong()
+    val prefsSaved = prefs.getLong(SETTING_AUTO_START_TRACKING_LAST_ENABLED, 0);
+    return  max(savedInt,prefsSaved)
+}
+
+fun getLastHeartbeat(context: Context): Double {
+    val key = "flutter.lastHeartbeat"
+    val goodpregs = MethodCallHandlerImpl(context)
+    val allValues = goodpregs.allPrefs
+    return (allValues[key] as Double?)?:3.toDouble()
 }
 
 fun shallExpireSensorService(context: Context): Boolean {
     val lastEnabled = getAutoStartTrackingLastEnabled(context)
     val now = Calendar.getInstance().timeInMillis
     val diff = now - lastEnabled
-    val msInFiveMinutes = 2 * 60 * 1000
+    val msInFiveMinutes = 1 * 60 * 1000
     val shallStop = diff > msInFiveMinutes
-    return shallStop;
+    return shallStop
 }
 
 private fun saveAutoStartTracking(context: Context, autoStart: Boolean) {
@@ -164,11 +170,6 @@ fun isMyServiceRunning(serviceClass: Class<*>, context: Context): Boolean {
 
 interface ACTION {
     companion object {
-        const val MAIN_ACTION = "com.truiton.foregroundservice.action.main"
-        const val PREV_ACTION = "com.truiton.foregroundservice.action.prev"
-        const val PLAY_ACTION = "com.truiton.foregroundservice.action.play"
-        const val NEXT_ACTION = "com.truiton.foregroundservice.action.next"
-        const val STARTFOREGROUND_ACTION = "com.truiton.foregroundservice.action.startforeground"
-        const val STOPFOREGROUND_ACTION = "com.truiton.foregroundservice.action.stopforeground"
+        const val STOPFOREGROUND_ACTION = "com.greenplay.action.stopforeground"
     }
 }

@@ -14,10 +14,11 @@ class ServiceAdmin {
     }
 
     fun launchService(context: Context?) {
+        val forceStart = !shallExpireSensorService(context!!)
         if (context == null) {
             return
         }
-        val shallStartService = getAutoStartTracking(context)
+        val shallStartService = getAutoStartTracking(context) || forceStart
         if (!shallStartService) {
             return
         }
@@ -43,7 +44,7 @@ class ServiceAdmin {
         setServiceIntent(context)
         try {
             context.stopService(
-                serviceIntent
+                    serviceIntent
             )
         } catch (ex: Exception) {
             Log.e("greenplay onServiceStop", "Service manager can't stop service $ex")

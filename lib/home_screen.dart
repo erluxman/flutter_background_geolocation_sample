@@ -55,7 +55,7 @@ class HeadlessEventsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-      future: getHeadLessEventsListFromHive(),
+      future: getHeadlessEventsFromSharedPrefs(),
       initialData: const [],
       builder: (context, snapshot) {
         final events = snapshot.data;

@@ -1,9 +1,7 @@
 package com.greenplayapp
 
 
-import android.content.ContextWrapper
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.BatteryManager
 import android.os.Build
 import androidx.annotation.NonNull
@@ -11,6 +9,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 const val CHANNEL = "com.greenplay/sensors"
 
@@ -19,8 +18,8 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            CHANNEL
+                flutterEngine.dartExecutor.binaryMessenger,
+                CHANNEL
         ).setMethodCallHandler { call, result ->
             invokeGenericChannelMethod(call, result)
         }
@@ -53,6 +52,26 @@ class MainActivity : FlutterActivity() {
                     result.error("UNAVAILABLE", "Start Sensor Tracker Failed", null)
                     result.success(null)
                 }
+            }
+
+            "logLastLocationUpdate" -> {
+                try {
+                    val prefs = applicationContext.getSharedPreferences(
+                            GREEN_PLAY_SENSOR_PREFS, Context.MODE_PRIVATE
+                    )
+                    val editor = prefs.edit()
+
+                    val now = Calendar.getInstance();
+                    editor.putLong(SETTING_AUTO_START_TRACKING_LAST_ENABLED, 200/*now.timeInMillis*/)
+
+                    editor.commit()
+                    result.success(null)
+
+                } catch (_: Exception) {
+                    result.success(null)
+
+                }
+
             }
 
             "stopSensorService" -> {
@@ -95,13 +114,13 @@ class MainActivity : FlutterActivity() {
             batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         } else {
             val intent = ContextWrapper(applicationContext).registerReceiver(
-                null, IntentFilter(
+                    null, IntentFilter(
                     Intent.ACTION_BATTERY_CHANGED
-                )
+            )
             )
             intent!!.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / intent.getIntExtra(
-                BatteryManager.EXTRA_SCALE,
-                -1
+                    BatteryManager.EXTRA_SCALE,
+                    -1
             )
         }
     }

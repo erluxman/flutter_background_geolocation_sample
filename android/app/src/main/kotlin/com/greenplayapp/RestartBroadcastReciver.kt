@@ -59,20 +59,25 @@ class RestartBroadcastReceiver : BroadcastReceiver() {
         private var jobScheduler: JobScheduler? = null
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        fun scheduleJob(context: Context) {
+        fun scheduleJob(context: Context,delaySeconds:Int=0) {
             if (jobScheduler == null) {
                 jobScheduler = context
                     .getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             }
             val componentName = ComponentName(context, JobService::class.java)
-            val jobInfo = JobInfo.Builder(
-                1,
+            var builder = JobInfo.Builder(
+                    if(delaySeconds<=0)1999329 else 366235,
                 componentName
             )   // setOverrideDeadline runs it immediately - you must have at least one constraint
                 // https://stackoverflow.com/questions/51064731/firing-jobservice-without-constraints
-                .setPeriodic(15 * 60 * 1000L)
-                .setPersisted(true).build()
-            jobScheduler?.schedule(jobInfo)
+                .setPersisted(true)
+            if(delaySeconds<=0){
+                builder = builder.setPeriodic(15 * 60 * 1000L)
+            }else{
+                builder = builder.setMinimumLatency(delaySeconds * 1000L)
+
+            }
+            jobScheduler?.schedule(builder.build())
         }
 
         fun reStartTracker(context: Context) {
@@ -84,4 +89,4 @@ class RestartBroadcastReceiver : BroadcastReceiver() {
     }
 }
 
-const val RESTART_INTENT = "com.gahlot.neverendingservice"
+const val RESTART_INTENT = "com.greenplayapp.restartintent"

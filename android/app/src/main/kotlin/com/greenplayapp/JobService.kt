@@ -32,11 +32,11 @@ class JobService : android.app.job.JobService() {
         return false
     }
 
-
     override fun onStopJob(jobParameters: JobParameters): Boolean {
         Log.i(TAG, "Stopping job")
         val broadcastIntent: Intent = Intent(RESTART_INTENT)
         sendBroadcast(broadcastIntent)
+        RestartBroadcastReceiver.scheduleJob(this)
         // give the time to run
         Handler().postDelayed({ unregisterReceiver(restartBroadcastReceiver) }, 1000)
         return false
@@ -45,24 +45,12 @@ class JobService : android.app.job.JobService() {
     companion object {
         private const val TAG = "JobService"
         private var restartBroadcastReceiver: RestartBroadcastReceiver? = null
-        private var instance: JobService? = null
-        private var jobParameters: JobParameters? = null
 
         /**
          * called when the tracker is stopped for whatever reason
          * @param context
          */
-        fun stopJob(context: Context?) {
-            if (instance != null && jobParameters != null) {
-                try {
-                    instance!!.unregisterReceiver(restartBroadcastReceiver)
-                } catch (e: Exception) {
-                    // not registered
-                }
-                Log.i(TAG, "Finishing job")
-                instance!!.jobFinished(jobParameters, true)
-            }
-        }
+
     }
 }
 
@@ -86,13 +74,12 @@ class DetectedActivityReceiver : BroadcastReceiver() {
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)
             for (event in result!!.transitionEvents) {
-                fireSensorService(context!!)
             }
         }
     }
 }
 
-fun registerActivityTransitionBroadcastListener(context:Context) {
+fun registerActivityTransitionBroadcastListener(context: Context) {
     val transitionsList = mutableListOf<ActivityTransition>()
 
     //Add still listener
